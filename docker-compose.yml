@@ -1,0 +1,33 @@
+version: "3"
+
+services:
+
+  db:
+    image: postgres:10
+    restart: always
+    container_name: db
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=devm
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=test_db
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    networks: [ 'app_network' ]
+    build:
+      context: ./postgresql
+  app:
+    image: "spring_postgres_app"
+    container_name: spring_postgres_server
+    expose:
+      - 8080:8080
+    ports:
+    - 8080:8080
+    build:
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    networks: ['app_network']
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/test_db
+networks: {app_network: {}}
